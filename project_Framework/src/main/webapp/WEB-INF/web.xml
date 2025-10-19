@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://jakarta.ee/xml/ns/jakartaee
+                             http://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <filter>
+        <filter-name>ResourceFilter</filter-name>
+        <filter-class>com.framework.servlet.filter.ResourceFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>ResourceFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>FrameworkServlet</servlet-name>
+        <servlet-class>com.framework.servlet.controller.MainController</servlet-class>
+        <init-param>
+            <param-name>controllerClasses</param-name>
+            <param-value>com.project.test.controller.TestController</param-value>
+        </init-param>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>FrameworkServlet</servlet-name>
+        <url-pattern>/framework/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>
