@@ -1,23 +1,28 @@
 @echo off
-
-:: Variables pour la librairie FrontServlet
-set APP_NAME=FrameworkServlet
+:: Variables
+set "JAVA_HOME=E:\JAVA"
+set "PATH=%JAVA_HOME%\bin;%PATH%"
+set APP_NAME=ProjetFramework
 set SRC_DIR=src\main\java
+set WEB_DIR=src\main\webapp
 set BUILD_DIR=build
 set LIB_DIR=lib
+set TOMCAT_WEBAPPS=D:\Tomcat\webapps
 set SERVLET_API_JAR=%LIB_DIR%\servlet-api.jar
-set TEST_LIB_DIR=..\test_Framework\lib
+set FRONT_SERVLET_JAR=%LIB_DIR%\Framework.jar
 
 :: Nettoyage
 if exist %BUILD_DIR% (
     rmdir /s /q %BUILD_DIR%
 )
-mkdir %BUILD_DIR%
+mkdir %BUILD_DIR%\WEB-INF
+mkdir %BUILD_DIR%\WEB-INF\classes
+mkdir %BUILD_DIR%\WEB-INF\lib
 
-:: Compilation
-echo Compilation de la librairie FrontServlet...
+:: Compilation avec les deux JARs
+echo Compilation de l'application Test...
 dir /b /s %SRC_DIR%\*.java > sources.txt
-javac -cp "%SERVLET_API_JAR%" -d %BUILD_DIR% @sources.txt
+javac -cp "%SERVLET_API_JAR%;%FRONT_SERVLET_JAR%" -source 17 -target 17 -d %BUILD_DIR%\WEB-INF\classes @sources.txt
 if errorlevel 1 (
     echo Erreur de compilation!
     del sources.txt
@@ -26,20 +31,27 @@ if errorlevel 1 (
 )
 del sources.txt
 
-:: Création du JAR
-echo Creation du JAR %APP_NAME%.jar...
+:: Copier les librairies
+copy /Y %LIB_DIR%\*.jar %BUILD_DIR%\WEB-INF\lib\
+
+:: Copier TOUS les fichiers web (y compris le web.xml existant)
+if exist %WEB_DIR% (
+    echo Copie des fichiers web...
+    xcopy /E /I /Y %WEB_DIR%\* %BUILD_DIR%\
+)
+
+:: Création du WAR
+echo Creation du WAR %APP_NAME%.war...
 cd %BUILD_DIR%
-jar -cvf %APP_NAME%.jar mg
+jar -cvf %APP_NAME%.war *
 cd ..
 
-:: Copie vers le projet Test
-if not exist %TEST_LIB_DIR% (
-    mkdir %TEST_LIB_DIR%
-)
-copy /Y %BUILD_DIR%\%APP_NAME%.jar %TEST_LIB_DIR%\
+:: Déploiement vers Tomcat
+echo Deploiement vers Tomcat...
+copy /Y %BUILD_DIR%\%APP_NAME%.war %TOMCAT_WEBAPPS%\
 
 echo.
-echo Librairie FrontServlet buildée avec succes!
-echo Copie vers: %TEST_LIB_DIR%\%APP_NAME%.jar
+echo Déploiement terminé avec succes!
+echo Application accessible sur: http://localhost:8080/%APP_NAME%/
 echo.
 pause
