@@ -1,6 +1,8 @@
 package mg.itu.framework.servlet;
 
+import mg.itu.framework.servlet.scanner.*;
 import mg.itu.framework.servlet.annotation.*;
+
 import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -13,22 +15,30 @@ public class FrontServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        System.out.println("[FrontServlet] ===== INITIALISATION SPRINT 2 =====");
+        System.out.println("[FrontServlet] ===== INITIALISATION =====");
         
-        // Récupérer les classes spécifiques depuis web.xml
+        // 1. Récupérer la configuration
+        String packageToScan = getServletConfig().getInitParameter("packageToScan");
         String controllerClasses = getServletConfig().getInitParameter("controllerClasses");
         
+        System.out.println("[FrontServlet] Configuration - packageToScan: " + packageToScan);
         System.out.println("[FrontServlet] Configuration - controllerClasses: " + controllerClasses);
         
+        // 2. Approche principale: charger les classes spécifiées directement
         if (controllerClasses != null && !controllerClasses.trim().isEmpty()) {
             System.out.println("[FrontServlet] Chargement direct des classes...");
             mappedMethods = loadSpecificControllers(controllerClasses);
+        } 
+        // 3. Approche secondaire: scan de package
+        else if (packageToScan != null && !packageToScan.trim().isEmpty()) {
+            System.out.println("[FrontServlet] Scan des packages...");
+            mappedMethods = ClassScanner.scanControllers(packageToScan);
         } else {
-            System.out.println("[FrontServlet] Aucune classe contrôleur configurée");
+            System.out.println("[FrontServlet] Aucune configuration de contrôleurs trouvée");
             mappedMethods = new ArrayList<>();
         }
         
-        // Afficher le résultat
+        // 4. Afficher le résultat
         printScanResults();
     }
     
@@ -92,7 +102,7 @@ public class FrontServlet extends HttpServlet {
     }
     
     private void printScanResults() {
-        System.out.println("[FrontServlet] ===== RÉSULTATS SPRINT 2 =====");
+        System.out.println("[FrontServlet] ===== RÉSULTATS =====");
         if (mappedMethods.isEmpty()) {
             System.out.println("[FrontServlet] AUCUN CONTRÔLEUR TROUVÉ!");
         } else {
@@ -176,12 +186,12 @@ public class FrontServlet extends HttpServlet {
             out.println("</div>");
             
             // Grouper par contrôleur
-            Map<Class<?>, List<MappedMethod>> byController = new HashMap<>();
+            java.util.Map<Class<?>, java.util.List<MappedMethod>> byController = new java.util.HashMap<>();
             for (MappedMethod method : mappedMethods) {
-                byController.computeIfAbsent(method.getControllerClass(), k -> new ArrayList<>()).add(method);
+                byController.computeIfAbsent(method.getControllerClass(), k -> new java.util.ArrayList<>()).add(method);
             }
             
-            for (Map.Entry<Class<?>, List<MappedMethod>> entry : byController.entrySet()) {
+            for (java.util.Map.Entry<Class<?>, java.util.List<MappedMethod>> entry : byController.entrySet()) {
                 out.println("<div class=\"controller\">");
                 out.println("<h3>🎮 " + entry.getKey().getSimpleName() + "</h3>");
                 out.println("<p><strong>Classe:</strong> " + entry.getKey().getName() + "</p>");
