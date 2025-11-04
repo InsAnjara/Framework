@@ -1,4 +1,4 @@
-package mg.itu.framework.servlet;
+package mg.itu.framework.servlet.scanner;
 
 import java.lang.reflect.Method;
 
